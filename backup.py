@@ -47,8 +47,8 @@ def delete_old_images(path):
                 print(f"Fehler beim Löschen der Datei '{file_path}': {e}")
 
 def run_image_backup(backup_filename):
-    # Führe den image_backup Befehl mit sudo aus
-    command = ["sudo", "image_backup", "-i", backup_filename]
+    # Führe den image-backup Befehl mit sudo aus
+    command = ["sudo", "image-backup", "-i", backup_filename]
     print(f"Führe Befehl aus: {' '.join(command)}")
     
     try:
@@ -57,15 +57,15 @@ def run_image_backup(backup_filename):
         
         # Prüfe, ob der Befehl fehlerfrei ausgeführt wurde
         if result.returncode != 0:
-            print(f"Fehler bei der Ausführung von image_backup: {result.stderr}")
+            print(f"Fehler bei der Ausführung von image-backup: {result.stderr}")
             return False  # Fehler aufgetreten
         return True  # Erfolgreich
     
     except FileNotFoundError:
-        print(f"Fehler: Das Programm 'image_backup' wurde nicht gefunden.")
+        print(f"Fehler: Das Programm 'image-backup' wurde nicht gefunden.")
         return False
     except subprocess.SubprocessError as e:
-        print(f"Fehler bei der Ausführung von image_backup: {e}")
+        print(f"Fehler bei der Ausführung von image-backup: {e}")
         return False
 
 def main():
