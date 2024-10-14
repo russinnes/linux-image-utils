@@ -302,7 +302,7 @@ if [ "${IMGFILE}" = "" ]; then
       errexit "${IMGFILE} is a directory"
     fi
     if [ "${IMGSIZE}" = "" ]; then
-      IMGSIZE=${INISIZE}
+      IMGSIZE=${INISIZE}+1024
     fi
     IRFSSIZE=${IMGSIZE}
     if [ "${IMGINCR}" = "" ]; then
