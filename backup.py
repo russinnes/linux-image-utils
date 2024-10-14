@@ -36,10 +36,6 @@ def create_backup_filename(path, prefix, add_weekday=False):
     if not os.path.isdir(path):
         raise FileNotFoundError(f"Der angegebene Pfad existiert nicht oder ist kein Verzeichnis: {path}")
     
-    # Überprüfe, ob die Datei bereits existiert; falls nicht, hänge ,,1024 an
-    if not os.path.exists(full_path):
-        full_path += ",,1024"
-    
     return full_path
 
 def delete_old_images(path):
@@ -87,8 +83,15 @@ def run_image_backup(backup_filename):
     tuple: (bool, stdout, stderr) - True, wenn der Befehl erfolgreich war, False bei einem Fehler, 
                                     sowie die stdout und stderr Ausgabe.
     """
+
+    # Überprüfe, ob die Datei bereits existiert; falls nicht, hänge ,,1024 an
+    if not os.path.exists(backup_filename):
+        command = ["sudo", "image-backup", "-i", backup_filename+",,1024"]
+    else:
+        command = ["sudo", "image-backup", backup_filename]
+        
     # Befehl, um das Backup durchzuführen
-    command = ["sudo", "image-backup", "-i", backup_filename]
+    # command = ["sudo", "image-backup", "-i", backup_filename]
     print(f"Führe Befehl aus: {' '.join(command)}")
     
     try:
