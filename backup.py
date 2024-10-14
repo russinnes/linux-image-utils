@@ -53,7 +53,7 @@ def run_image_backup(backup_filename):
     
     try:
         # Versuche, den Befehl auszuführen
-        result = subprocess.run(command, capture_output=True, text=True)
+        result = subprocess.run(command, stdout=sys.stdout, stderr=sys.stderr)
         
         # Prüfe, ob der Befehl fehlerfrei ausgeführt wurde
         if result.returncode != 0:
