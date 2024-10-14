@@ -48,7 +48,7 @@ def delete_old_images(path):
 
 def run_image_backup(backup_filename):
     # Führe den image-backup Befehl mit sudo aus
-    command = ["sudo", "image-backup", "-i", backup_filename]
+    command = ["sudo", "image-backup", "-i", backup_filename+",,1024"]
     print(f"Führe Befehl aus: {' '.join(command)}")
     
     try:
