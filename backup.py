@@ -139,9 +139,9 @@ def send_error_email(error_message, stdout_output="", stderr_output=""):
     recipient = "hst@gamebox.at"  # Empfänger der Fehlermeldung
     subject = "Fehler bei der Ausführung von image-backup"  # Betreff der E-Mail
     body = f"{error_message}\n\nSTDOUT:\n{stdout_output}\n\nSTDERR:\n{stderr_output}"
-    
+    email_content = f"Subject: {subject}\n\n{body}"
     # Kommando für das Versenden der E-Mail
-    command = f'echo "{body}" | msmtp -s "{subject}" {recipient}'
+    command = f'echo "{email_content}" | msmtp {recipient}'
     
     try:
         # Führe den E-Mail-Befehl aus
