@@ -21,6 +21,9 @@ errexit()
 
 mkloop()
 {
+  if [ "${LOOP}" != "" ]; then
+    errexit "Loop alreadx existing: ${LOOP}"
+  fi
   LOOP="$(losetup -f --show -P "${IMGFILE}")"
   if [ $? -ne 0 ]; then
     errexit "Unable to create loop device"
@@ -271,8 +274,8 @@ done
 if [ "${IMGFILE}" = "" ]; then
   if [ "${IMGNAME}" != "" ]; then
     IMGFILE="${IMGNAME}"
-    if [[ ! "${IMGFILE}" =~ ^/mnt/.*$ && ! "${IMGFILE}" =~ ^/media/.*$ ]]; then
-      errexit "${IMGFILE} does not begin with /mnt/ or /media/"
+    if [[ ! "${IMGFILE}" =~ ^/mnt/.*$ && ! "${IMGFILE}" =~ ^/media/.*$ && ! "${IMGFILE}" =~ ^/srv/.*$ ]]; then
+      errexit "${IMGFILE} does not begin with /mnt/ or /media/ or /srv/"
     fi
     if [ -d "${IMGFILE}" ]; then
       errexit "${IMGFILE} is a directory"
@@ -292,9 +295,9 @@ if [ "${IMGFILE}" = "" ]; then
       read -r -e -i "${IMGFILE}" -p "Image file to create? " IMGFILE
       if [ "${IMGFILE}" = "" ]; then
         continue
-      elif [[ ! "${IMGFILE}" =~ ^/mnt/.*$ && ! "${IMGFILE}" =~ ^/media/.*$ ]]; then
+      elif [[ ! "${IMGFILE}" =~ ^/mnt/.*$ && ! "${IMGFILE}" =~ ^/media/.*$ && ! "${IMGFILE}" =~ ^/srv/.*$ ]]; then
         echo ""
-        echo "${IMGFILE} does not begin with /mnt/ or /media/"
+        echo "${IMGFILE} does not begin with /mnt/ or /media/ or /srv/"
         continue
       fi
       if [ -d "${IMGFILE}" ]; then
@@ -482,8 +485,8 @@ sed -n "s|^\.d\.\.t\.\.\.\.\.\.\s\+\(.*$\)|/\1|p")"
   umntimg
   echo ""
 else
-  if [[ ! "${IMGFILE}" =~ ^/mnt/.*$ && ! "${IMGFILE}" =~ ^/media/.*$ ]]; then
-    errexit "${IMGFILE} does not begin with /mnt/ or /media/"
+  if [[ ! "${IMGFILE}" =~ ^/mnt/.*$ && ! "${IMGFILE}" =~ ^/media/.*$ && ! "${IMGFILE}" =~ ^/srv/.*$ ]]; then
+    errexit "${IMGFILE} does not begin with /mnt/ or /media/ or /srv/"
   fi
   if [ -d "${IMGFILE}" ]; then
     errexit "${IMGFILE} is a directory"
