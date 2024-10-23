@@ -388,6 +388,16 @@ EOF
   if [ "${ROOT_TYPE}" != "f2fs" ]; then
     echo ""
     mkloop
+    grub-install --target=i386-pc --recheck --boot-directory="${MNTPATH}/boot" "${LOOP}"
+    mount --bind /dev "${MNTPATH}/dev"
+    mount --bind /proc "${MNTPATH}/proc"
+    mount --bind /sys "${MNTPATH}/sys"
+    chroot "${MNTPATH}" /bin/bash -c "update-grub"
+    umount "${MNTPATH}/dev"
+    umount "${MNTPATH}/proc"
+    umount "${MNTPATH}/sys"
+
+
     e2fsck -f -n "${LOOP}p2"
     if [ $? -ne 0 ]; then
       fsckerr "before"
