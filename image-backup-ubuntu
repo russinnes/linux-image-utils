@@ -28,12 +28,14 @@ mkloop()
   if [ $? -ne 0 ]; then
     errexit "Unable to create loop device"
   fi
+  sleep 2
 }
 
 rmloop()
 {
   if [ "${LOOP}" != "" ]; then
     losetup -d "${LOOP}"
+    sleep 3
     LOOP="" 
   fi
 }
@@ -480,7 +482,7 @@ EOF
   do
     touch -r "${DIR}" "${MNTPATH}${DIR}"
   done <<< "$(echo "$(rsync -aDH --dry-run --itemize-changes --partial --numeric-ids --delete --force --exclude "${MNTPATH}" --exclude '/dev' \
---exclude '/lost+found' --exclude '/media' --exclude '/mnt' --exclude '/proc' --exclude '/run' --exclude '/sys' --exclude '/tmp' --exclude '/var/swap' \
+--exclude '/lost+found' --exclude '/media' --exclude '/mnt' --exclude '/proc' --exclude '/run' --exclude '/sys' --exclude '/srv' --exclude '/tmp' --exclude '/var/swap' \
 --exclude '/etc/udev/rules.d/70-persistent-net.rules' --exclude '/var/lib/asterisk/astdb.sqlite3-journal' "${OPTIONS[@]}" / "${MNTPATH}/")" | \
 sed -n "s|^\.d\.\.t\.\.\.\.\.\.\s\+\(.*$\)|/\1|p")"
   umntimg

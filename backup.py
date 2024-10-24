@@ -72,6 +72,23 @@ def delete_old_images(path):
                 # Fehlerbehandlung beim Löschen
                 print(f"Fehler beim Löschen der Datei '{file_path}': {e}")
 
+def log_output_to_dmesg(stdout_output, stderr_output, backup_command):
+    """
+    Logs the stdout and stderr output to dmesg using the logger command.
+    """
+    try:
+        # Log stdout if it exists
+        if stdout_output:
+            subprocess.run(['logger', '-t', backup_command, stdout_output], check=True)
+        
+        # Log stderr if it exists
+        if stderr_output:
+            subprocess.run(['logger', '-t', backup_command, stderr_output], check=True)
+    
+    except subprocess.CalledProcessError as e:
+        print(f"Fehler beim Loggen in dmesg: {e}")
+
+
 def run_image_backup(backup_filename):
     """
     Führt den Backup-Befehl 'image_backup' mit sudo aus und leitet die Ausgabe von stdout und stderr
@@ -105,9 +122,9 @@ def run_image_backup(backup_filename):
 
     # Überprüfe, ob die Datei bereits existiert; falls nicht, hänge ,,1024 an
     if not os.path.exists(backup_filename):
-        command = ["sudo", backup_command, "-i", backup_filename+",,1024"]
+        command = ["sudo", "nice", "-n", "19", backup_command, "-i", backup_filename+",,1024"]
     else:
-        command = ["sudo", backup_command, backup_filename]
+        command = ["sudo", "nice", "-n", "19", backup_command, backup_filename]
         
     # Befehl, um das Backup durchzuführen
     # command = ["sudo", "image-backup", "-i", backup_filename]
@@ -123,12 +140,8 @@ def run_image_backup(backup_filename):
         
         print(stdout_output)
         print(stderr_output, file=sys.stderr)
-        
-        # Weiterleiten der Ausgaben an dmesg mit dem Befehl 'logger'
-        if stdout_output:
-            subprocess.run(f'echo "{stdout_output}" | logger -t {backup_command}', shell=True)
-        if stderr_output:
-            subprocess.run(f'echo "{stderr_output}" | logger -t {backup_command}', shell=True)
+        # Log the outputs to dmesg
+        log_output_to_dmesg(stdout_output, stderr_output, backup_command)        
 
         # Überprüfen, ob der Befehl erfolgreich ausgeführt wurde
         if result.returncode != 0:
