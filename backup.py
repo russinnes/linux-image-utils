@@ -2,6 +2,7 @@ import os
 import sys
 import subprocess
 from datetime import datetime, timedelta
+import platform  # Für die Erkennung des Betriebssystems
 
 def create_backup_filename(path, prefix, add_weekday=False):
     """
@@ -83,12 +84,30 @@ def run_image_backup(backup_filename):
     tuple: (bool, stdout, stderr) - True, wenn der Befehl erfolgreich war, False bei einem Fehler, 
                                     sowie die stdout und stderr Ausgabe.
     """
+    system_name = platform.system()
+
+    if system_name == "Linux":
+        # Erkennung, ob es sich um ein Raspberry Pi handelt
+        try:
+            # Prüfe, ob der Raspberry Pi durch /proc/cpuinfo identifizierbar ist
+            with open("/proc/cpuinfo", "r") as f:
+                if "Raspberry Pi" in f.read():
+                    backup_command = "image-backup"
+                else:
+                    backup_command = "image-backup-ubuntu"
+        except FileNotFoundError:
+            # Fallback für Systeme, die /proc/cpuinfo nicht haben (z.B. andere Linux-Distros)
+            backup_command = "image-backup-ubuntu"
+    else:
+        print("Nicht unterstütztes Betriebssystem. Skript wird beendet.")
+        sys.exit(1)
+
 
     # Überprüfe, ob die Datei bereits existiert; falls nicht, hänge ,,1024 an
     if not os.path.exists(backup_filename):
-        command = ["sudo", "image-backup", "-i", backup_filename+",,1024"]
+        command = ["sudo", backup_command, "-i", backup_filename+",,1024"]
     else:
-        command = ["sudo", "image-backup", backup_filename]
+        command = ["sudo", backup_command, backup_filename]
         
     # Befehl, um das Backup durchzuführen
     # command = ["sudo", "image-backup", "-i", backup_filename]
@@ -107,25 +126,25 @@ def run_image_backup(backup_filename):
         
         # Weiterleiten der Ausgaben an dmesg mit dem Befehl 'logger'
         if stdout_output:
-            subprocess.run(f'echo "{stdout_output}" | logger -t image-backup', shell=True)
+            subprocess.run(f'echo "{stdout_output}" | logger -t {backup_command}', shell=True)
         if stderr_output:
-            subprocess.run(f'echo "{stderr_output}" | logger -t image-backup', shell=True)
+            subprocess.run(f'echo "{stderr_output}" | logger -t {backup_command}', shell=True)
 
         # Überprüfen, ob der Befehl erfolgreich ausgeführt wurde
         if result.returncode != 0:
             # Fehlerausgabe im Falle eines Fehlers
-            print(f"Fehler bei der Ausführung von image-backup (Exit-Code {result.returncode})")
+            print(f"Fehler bei der Ausführung von {backup_command} (Exit-Code {result.returncode})")
             return False, stdout_output, stderr_output  # Fehler aufgetreten
         return True, stdout_output, stderr_output  # Erfolgreich
     
     except FileNotFoundError:
         # Fehler, wenn das Programm 'image_backup' nicht gefunden wurde
-        error_msg = "Fehler: Das Programm 'image-backup' wurde nicht gefunden."
+        error_msg = "Fehler: Das Programm '{backup_command}' wurde nicht gefunden."
         print(error_msg)
         return False, "", error_msg
     except subprocess.SubprocessError as e:
         # Allgemeine Fehlerbehandlung bei der Befehlsausführung
-        error_msg = f"Fehler bei der Ausführung von image-backup: {e}"
+        error_msg = f"Fehler bei der Ausführung von {backup_command}: {e}"
         print(error_msg)
         return False, "", error_msg
 
