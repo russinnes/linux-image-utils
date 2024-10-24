@@ -77,13 +77,17 @@ def log_output_to_dmesg(stdout_output, stderr_output, backup_command):
     Logs the stdout and stderr output to dmesg using the logger command.
     """
     try:
-        # Log stdout if it exists
+
+        # Log stdout line by line if it exists
         if stdout_output:
-            subprocess.run(['logger', '-t', backup_command, stdout_output], check=True)
-        
-        # Log stderr if it exists
+            for line in stdout_output.splitlines():
+                subprocess.run(['logger', '-t', backup_command, line], check=True)
+
+        # Log stderr line by line if it exists
         if stderr_output:
-            subprocess.run(['logger', '-t', backup_command, stderr_output], check=True)
+            for line in stderr_output.splitlines():
+                subprocess.run(['logger', '-t', backup_command, line], check=True)
+
     
     except subprocess.CalledProcessError as e:
         print(f"Fehler beim Loggen in dmesg: {e}")
